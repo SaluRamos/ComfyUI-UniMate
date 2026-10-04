@@ -1,0 +1,37 @@
+{
+  "1": {
+    "class_type": "UniMateAnimate",
+    "inputs": {
+      "model": "unimate_mixamo_f60",
+      "dataset": "mixamo",
+      "object_type": "mixamo",
+      "prompt": "An object walks forward at a steady pace.",
+      "mode": "text",
+      "case_id": "comfy",
+      "seed": 42,
+      "cfg_scale": 3.0,
+      "num_repetitions": 1,
+      "batch_size": 1,
+      "num_frames": 0,
+      "device": "auto",
+      "auto_download": true,
+      "only_save_motion": false,
+      "save_ric": false,
+      "use_ema": true,
+      "keep_frames": "0,-1",
+      "keep_joints": "",
+      "gt_start_frame": -1,
+      "expand_overlap": 10,
+      "filename_prefix": "UniMate",
+      "cases_json": "",
+      "features_dir": "",
+      "experiment_dir": "",
+      "checkpoint_path": "",
+      "models_dir": "",
+      "model_revision": "971da7cfc1c8d99c2af6c00be9d2ed5700f99073",
+      "dataset_revision": "053e8b4b06b6a8ba717a030e675dd5b7fd5be92e",
+      "preview_frames": 60,
+      "python_executable": ""
+    }
+  }
+}

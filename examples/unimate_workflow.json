@@ -1,0 +1,95 @@
+{
+  "last_node_id": 1,
+  "last_link_id": 0,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "UniMateAnimate",
+      "pos": [
+        80,
+        40
+      ],
+      "size": [
+        540,
+        1400
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "motion",
+          "type": "UNIMATE_MOTION",
+          "links": null,
+          "slot_index": 0
+        },
+        {
+          "name": "preview_frames",
+          "type": "IMAGE",
+          "links": null,
+          "slot_index": 1
+        },
+        {
+          "name": "motion_paths",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 2
+        },
+        {
+          "name": "video_paths",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 3
+        },
+        {
+          "name": "output_dir",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 4
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UniMateAnimate"
+      },
+      "widgets_values": [
+        "unimate_mixamo_f60",
+        "mixamo",
+        "mixamo",
+        "An object walks forward at a steady pace.",
+        "text",
+        "comfy",
+        42,
+        "fixed",
+        3.0,
+        1,
+        1,
+        0,
+        "auto",
+        true,
+        false,
+        false,
+        true,
+        "0,-1",
+        "",
+        -1,
+        10,
+        "UniMate",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "971da7cfc1c8d99c2af6c00be9d2ed5700f99073",
+        "053e8b4b06b6a8ba717a030e675dd5b7fd5be92e",
+        60,
+        ""
+      ]
+    }
+  ],
+  "links": [],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+*.part
+.cache/
+models/
+outputs/
+dataset/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+# Original independent checkout; the inference subset is bundled in vendor/.
+/UniMate/
+.idea/
+.vscode/
