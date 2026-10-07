@@ -193,3 +193,8 @@ Mantenha `export_animated_mesh=true`. A saída `animated_mesh` é um arquivo 3D 
 `face_right` e `face_left` permitem orientar a frente com um par de bones; preencha ambos ou nenhum. `body_axis` adapta esse par a rigs serpentinos. Interpolação/edição exigem uma animação real no GLB/FBX: um rig em repouso serve somente para gerar movimento/expansão. As referências disponíveis são listadas em inference.log.
 
 Validação da integração: inferência CUDA na RTX 3060 12 GB com rig GLB de teste (22 bones), GLB exportado com 44 canais animados, e player verificado no navegador com pausa, scrubber e 2×. O rig específico do usuário não foi usado neste teste.
+
+
+## Intel Arc / Intel Arc Pro B70 (XPU)
+
+See [INTEL_XPU.md](INTEL_XPU.md) for installation, backend selection and validation limits.

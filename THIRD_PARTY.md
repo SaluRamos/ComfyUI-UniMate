@@ -1,8 +1,11 @@
-The unmodified inference subset in `vendor/unimate` and
+The inference subset in `vendor/unimate` and
 `vendor/data_process/utils/plotting.py` comes from
 [Friedrich-M/UniMate](https://github.com/Friedrich-M/UniMate), revision
 `2c5b384715aa63d8639b1ed7eb74bfe614570c7a`; see
 `vendor/UNIMATE_LICENSE` for its MIT license.
+
+Local adaptations add CUDA/XPU device dispatch and preserve explicit device indices in T5 AMP.
+The previously missing vendor/unimate/models and vendor/unimate/dataset sources were restored from the same pinned revision.
 
 The original checkout is preserved separately in `UniMate/` and is not needed
 to run this adapter. Training entry points and cloud captioning are not bundled.

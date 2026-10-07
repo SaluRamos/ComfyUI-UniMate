@@ -11,9 +11,9 @@ venv/
 *.tmp
 *.part
 .cache/
-models/
+/models/
 outputs/
-dataset/
+/dataset/
 *.pt
 *.pth
 *.ckpt
