@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent / "vendor"))
 
 import numpy as np
 import torch
+from device_support import initialize_device
 from unimate.inference.sample import InferenceArgs, _resolve_exp_paths, main
 from model_store import default_features_dir, ensure_features, ensure_model
 from mesh_pipeline import export_mesh, prepare_mesh
@@ -22,8 +23,8 @@ from mesh_pipeline import export_mesh, prepare_mesh
 def run(request_path):
     request = json.loads(Path(request_path).read_text(encoding="utf-8"))
     run_dir = Path(request["run_dir"])
-    if request["device"] == "cuda":
-        torch.cuda.set_device(request["device_index"])
+    worker_device = initialize_device(torch, request["device"], request["device_index"])
+    os.environ["UNIMATE_DEVICE"] = worker_device
     checkpoint = Path(request["checkpoint"]) if request["checkpoint"] else None
     if request["experiment_dir"]:
         exp_dir = Path(request["experiment_dir"])
@@ -59,7 +60,7 @@ def run(request_path):
     config["dataset"]["dataset_list"] = [dataset]
     config[dataset]["path"] = str(features_dir)
     config["sampling"]["model_path"] = None
-    config["sampling"]["device"] = request["device"]
+    config["sampling"]["device"] = worker_device
     if request["num_frames"]:
         config["dataset"]["max_motion_length"] = request["num_frames"]
     config["training"]["use_ema"] = request["use_ema"]

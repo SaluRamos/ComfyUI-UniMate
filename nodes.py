@@ -15,6 +15,10 @@ import psutil
 import folder_paths
 import comfy.model_management as model_management
 import torch
+try:
+    from .device_support import select_device
+except ImportError:
+    from device_support import select_device
 
 MODES = ("text", "inbetween", "motion_edit", "motion_expand")
 MODELS = (
@@ -199,7 +203,7 @@ class UniMateAnimate:
             "num_repetitions": ("INT", {"default": 1, "min": 1, "max": 1024, "tooltip": "Quantidade de animações por caso, usando ruídos diferentes."}),
             "batch_size": ("INT", {"default": 1, "min": 1, "max": 1024, "tooltip": "Casos por lote. Reduza para economizar VRAM; não muda o total de repetições."}),
             "num_frames": ("INT", {"default": 0, "min": 0, "max": 16384, "tooltip": "0 mantém max_motion_length do checkpoint (normalmente 60 frames a 30 fps). Janelas maiores aumentam VRAM; use expansão para vídeos longos."}),
-            "device": (["auto", "cuda", "cpu"], {"tooltip": "auto usa o dispositivo do ComfyUI. CUDA usa a GPU selecionada pelo ComfyUI; CPU é mais lenta."}),
+            "device": (["auto", "cuda", "cpu", "xpu"], {"tooltip": "auto usa o dispositivo do ComfyUI; xpu usa GPU Intel Arc. CPU é mais lenta."}),
             "auto_download": ("BOOLEAN", {"default": True, "tooltip": "Baixa somente os pesos, encoder e clips necessários que estiverem ausentes. Desative para execução totalmente offline."}),
             "only_save_motion": ("BOOLEAN", {"default": False, "tooltip": "Salva apenas .npy; não renderiza MP4/PNG. A saída de IMAGE fica vazia."}),
             "save_ric": ("BOOLEAN", {"default": False, "tooltip": "Renderiza também posições recuperadas por RIC, além da animação padrão FK."}),
@@ -238,7 +242,7 @@ class UniMateAnimate:
                 preview_frames=60, python_executable="", mesh=None, mesh_path="",
                 blender_executable="", face_right="", face_left="", body_axis=False,
                 export_animated_mesh=True, mesh_export_format="glb"):
-        if model not in MODELS or dataset not in DATASETS or device not in ("auto", "cuda", "cpu"):
+        if model not in MODELS or dataset not in DATASETS or device not in ("auto", "cuda", "cpu", "xpu"):
             raise ValueError("Modelo, dataset ou dispositivo inválido.")
         cases = make_cases(mode, object_type, case_id, prompt, cases_json, cfg_scale, keep_joints)
         comfy_root = Path(folder_paths.base_path)
@@ -250,11 +254,8 @@ class UniMateAnimate:
         models_root = local_path(models_dir) if models_dir.strip() else str(Path(folder_paths.models_dir) / "unimate")
         model_cache = Path(models_root) / "releases" / hashlib.sha256(model_revision.encode()).hexdigest()[:12]
         torch_device = model_management.get_torch_device()
-        selected_device = torch_device.type if device == "auto" else device
-        if selected_device not in ("cuda", "cpu"):
-            raise ValueError(f"O backend {selected_device} não está validado pelo UniMate. Selecione cpu ou cuda.")
-        if selected_device == "cuda" and not torch.cuda.is_available():
-            raise RuntimeError("CUDA indisponível neste ambiente; selecione cpu ou outro python_executable com CUDA.")
+        selected_device, device_index = select_device(
+            torch, device, torch_device, validate=not python_executable.strip())
         run_dir = new_output_dir(folder_paths.get_output_directory(), filename_prefix)
         if mesh_export_format not in MESH_FORMATS:
             raise ValueError("Formato de exportação de mesh inválido.")
@@ -275,7 +276,7 @@ class UniMateAnimate:
         request = dict(
             run_dir=str(run_dir), model=model, dataset=dataset, cases=cases, mode=mode,
             seed=seed, cfg_scale=cfg_scale, num_repetitions=num_repetitions, batch_size=batch_size,
-            num_frames=num_frames, device=selected_device, device_index=torch_device.index or 0,
+            num_frames=num_frames, device=selected_device, device_index=device_index,
             auto_download=auto_download, only_save_motion=only_save_motion, save_ric=save_ric,
             use_ema=use_ema, keep_frames=keep_frames, keep_joints=keep_joints,
             gt_start_frame=gt_start_frame, expand_overlap=expand_overlap,
@@ -287,7 +288,7 @@ class UniMateAnimate:
             face_right=face_right, face_left=face_left, body_axis=body_axis,
             export_animated_mesh=export_animated_mesh, mesh_export_format=mesh_export_format,
         )
-        if selected_device == "cuda":
+        if selected_device in ("cuda", "xpu"):
             model_management.unload_all_models()
             model_management.soft_empty_cache()
         run_worker(request, local_path(python_executable) if python_executable.strip() else sys.executable,

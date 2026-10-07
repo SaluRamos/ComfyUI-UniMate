@@ -228,8 +228,10 @@ def _encode_prompt(encoder, text: str) -> CaptionEnc:
 
 def _release_gpu():
     gc.collect()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
+    for name in ("cuda", "xpu"):
+        backend = getattr(torch, name, None)
+        if backend is not None and backend.is_available():
+            backend.empty_cache()
 
 
 def _resolve_inference_scope(args: InferenceArgs) -> Tuple[Optional[set], Optional[set]]:
@@ -726,7 +728,7 @@ def _run_sampling(
     captions_text = [caption for _, _, caption, _, _ in test_cases]
     total = len(test_cases)
     chunk_size = max(1, args.batch_size)
-    use_cuda_sync = device.type == 'cuda'
+    sync_backend = getattr(torch, device.type, None) if device.type in ('cuda', 'xpu') else None
 
     keep_frame_indices = parse_keep_frames(args.keep_frames) if args.inbetween else None
     keep_joint_names = parse_keep_joints(args.keep_joints) if args.motion_edit else None
@@ -857,8 +859,8 @@ def _run_sampling(
                             f"(sample + GT will be saved at this length)."
                         )
 
-                if use_cuda_sync:
-                    torch.cuda.synchronize(device)
+                if sync_backend is not None:
+                    sync_backend.synchronize(device)
                 t_start = time.perf_counter()
 
                 samples = generate_samples(
@@ -874,8 +876,8 @@ def _run_sampling(
                     keep_mask=keep_mask,
                 )
 
-                if use_cuda_sync:
-                    torch.cuda.synchronize(device)
+                if sync_backend is not None:
+                    sync_backend.synchronize(device)
                 elapsed = time.perf_counter() - t_start
                 logger.info(
                     f'rep#{rep_i} chunk[{chunk_start}:{chunk_end}] '
